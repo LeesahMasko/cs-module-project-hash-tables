@@ -21,7 +21,9 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        # Your code here
+        self.data = [None] * capacity
+        self.capacity = capacity
+        self.size = 0
 
 
     def get_num_slots(self):
@@ -35,7 +37,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-
+        return len(self.data)
 
     def get_load_factor(self):
         """
@@ -44,6 +46,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        return self.size/self.capacity
 
 
     def fnv1(self, key):
@@ -56,6 +59,7 @@ class HashTable:
         # Your code here
 
 
+
     def djb2(self, key):
         """
         DJB2 hash, 32-bit
@@ -63,7 +67,10 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
-
+        hash = 5381
+        for i in range(len(key)):
+            hash = ((hash << 5) + hash) + ord(key[i])
+        return hash & 0xFFFFFFFF
 
     def hash_index(self, key):
         """
@@ -82,6 +89,12 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.hash_index(key)
+        if self.data[index] is None:
+            self.data[index] = []
+            self.data[index].append([key, value])
+        else:
+            self.data[index].append([key, value])
 
 
     def delete(self, key):
@@ -93,6 +106,11 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.hash_index(key)
+        if self.data[index] is None:
+            print('key not found')
+        else:
+            self.put(key, None)
 
 
     def get(self, key):
@@ -104,6 +122,13 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        index = self.hash_index(key)
+        if(self.data[index] is None):
+            return None
+        else:
+            for k in self.data[index]:
+                if k[0] == key:
+                    return k[1]
 
 
     def resize(self, new_capacity):
@@ -113,8 +138,16 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        curr = self.data
+        self.capacity = new_capacity
+        self.data = [None] * new_capacity
 
+        for i in curr:
+            if i:
+                node = 1
+                while node:
+                    self.put(node.key, node.value)
+                    node = node.next
 
 
 if __name__ == "__main__":
