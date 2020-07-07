@@ -11,6 +11,9 @@ class HashTableEntry:
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
 
+class LinkedList:
+    def __init__(self):
+        self.head = None
 
 class HashTable:
     """
@@ -21,8 +24,8 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        self.data = [None] * capacity
         self.capacity = capacity
+        self.data = [LinkedList()] * capacity
         self.size = 0
 
 
@@ -46,7 +49,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        return self.size/self.capacity
+        return self.size/len(self.capacity)
 
 
     def fnv1(self, key):
@@ -89,12 +92,24 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        newNode = HashTableEntry(key, value)
         index = self.hash_index(key)
-        if self.data[index] is None:
-            self.data[index] = []
-            self.data[index].append([key, value])
+        if self.data[index].head is None:
+            self.data[index].head = newNode
+            self.size += 1
+            return
+
         else:
-            self.data[index].append([key, value])
+            curr = self.data[index].head
+
+            while curr.next:
+                if curr.key == key:
+                    curr.value = value
+                curr = curr.next
+
+            curr.next = newNode
+            self.size += 1
+
 
 
     def delete(self, key):
@@ -123,12 +138,19 @@ class HashTable:
         """
         # Your code here
         index = self.hash_index(key)
-        if(self.data[index] is None):
+        curr = self.data[index].head
+
+        if curr == None:
             return None
-        else:
-            for k in self.data[index][::-1]:
-                if k[0] == key:
-                    return k[1]
+
+        if curr.key == None:
+            return curr.value
+
+        while curr.next:
+            curr = curr.next
+            if curr.key == key:
+                return curr.value
+        return None
 
 
     def resize(self, new_capacity):
@@ -138,17 +160,21 @@ class HashTable:
 
         Implement this.
         """
-        curr = self.data
         self.capacity = new_capacity
-        self.data = [None] * new_capacity
+        new_list = [LinkedList()] * new_capacity
 
-        for i in curr:
-            if i:
-                node = 1
-                while node:
-                    self.put(node.key, node.value)
-                    node = node.next
-
+        for i in self.data:
+            curr = i.head
+            while curr is not None:
+                index = self.hash_index(curr.key)
+                if new_list[index].head == None:
+                    new_list[index].head = HashTableEntry(curr.key, curr.value)
+                else:
+                    node = HashTableEntry(curr.key, curr.value)
+                    node.next = new_list[index].head
+                    new_list[index].head = node
+                curr = curr.next
+        self.data = new_list
 
 if __name__ == "__main__":
     ht = HashTable(8)
