@@ -14,9 +14,8 @@ def sumOfMin(list):
   minNum = 0
 
   for i in list:
-    i.sort()
 
-    minNum += i[0]
+    minNum += min(i)
   return(minNum)
 
 print(sumOfMin(list1))

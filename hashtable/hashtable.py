@@ -110,7 +110,7 @@ class HashTable:
         if self.data[index] is None:
             print('key not found')
         else:
-            self.put(key, None)
+            self.data[index] = None
 
 
     def get(self, key):
@@ -126,7 +126,7 @@ class HashTable:
         if(self.data[index] is None):
             return None
         else:
-            for k in self.data[index]:
+            for k in self.data[index][::-1]:
                 if k[0] == key:
                     return k[1]
 
