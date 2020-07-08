@@ -203,21 +203,19 @@ class HashTable:
 
         Implement this.
         """
-        self.capacity = new_capacity
-        new_list = [LinkedList()] * new_capacity
+        self.capacity = [None] * new_capacity
+        self.size = 0
+        old_table = self.capacity
 
-        for i in self.data:
-            curr = i.head
-            while curr is not None:
-                index = self.hash_index(curr.key)
-                if new_list[index].head == None:
-                    new_list[index].head = HashTableEntry(curr.key, curr.value)
-                else:
-                    node = HashTableEntry(curr.key, curr.value)
-                    node.next = new_list[index].head
-                    new_list[index].head = node
-                curr = curr.next
-        self.data = new_list
+
+        for x in old_table:
+            if x is not None:
+                cur = x.head
+
+                while cur is not None:
+                    self.put(cur.key, cur.value)
+                    cur = cur.next
+
 
 if __name__ == "__main__":
     ht = HashTable(8)
