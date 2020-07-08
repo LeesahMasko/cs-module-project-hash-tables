@@ -7,45 +7,6 @@ class HashTableEntry:
         self.value = value
         self.next = None
 
-
-class LinkedList:
-    def __init__(self, key):
-        self.head = None
-        self.key = None
-
-    def find(self, key):
-        cur = self.head
-        while cur is not None:
-            if cur.key == key:
-                return cur.value
-            cur = cur.next
-        return None
-
-    def insert_at_head(self, key, value):
-        n = HashTableEntry(key, value)
-        n.next = self.head
-        self.head = n
-
-    def delete(self, key):
-        cur = self.head
-        if cur.key == key:
-            self.head = self.head.next
-            cur.next = None  # cleaning the pointer for the deleted value
-            return cur
-
-        prev = cur
-        cur = cur.next
-
-        while cur is not None:
-            if cur.key == key:
-                prev.next = cur.next
-                cur.next = None
-                return cur
-            else:
-                prev = prev.next
-                cur = cur.next
-        return None
-
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
 
@@ -58,10 +19,10 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        self.capacity = [None] * capacity
+        self.capacity = capacity
+        self.storage = [None] * capacity
         # self.data = [LinkedList()] * capacity
         self.size = 0
-        self.head = None
 
 
     def get_num_slots(self):
@@ -116,7 +77,7 @@ class HashTable:
         between within the storage capacity of the hash table.
         """
         #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % len(self.capacity)
+        return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -128,31 +89,37 @@ class HashTable:
         """
         # Your code here
         key_index = self.hash_index(key)
-        self.size += 1
-        cur = self.capacity[key_index]
+        cur = self.storage[key_index]
+        new_entry = HashTableEntry(key, value)
+        # self.size += 1
 
-        if self.capacity[key_index] is not None:
-            overwrite = self.capacity[key_index].find(key)
-            if overwrite is not None:  # the key already exists in the linked list
-                cur = self.capacity[key_index].head
+        if cur is not None:
+            last_entry = None
 
             while cur is not None:
                 if cur.key == key:
                     cur.value = value
+                    return
+
+                last_entry = cur
                 cur = cur.next
-            else:
-                self.capacity[key_index].insert_at_head(key, value)
 
-            cur.next = newNode
+                last_entry.next = new_entry
+                self.size += 1
+
+                if self.get_load_factor() > 0.7:
+                    self.resize(self.size * 2)
+
+        else:
+            cur = new_entry
             self.size += 1
-
-        else:  # no linked list there
-
-            ll = LinkedList(key)
-            ll.insert_at_head(key, value)
-            self.capacity[key_index] = ll
+            if self.get_load_factor() > 0.7:
+                self.resize(self.size * 2)
 
 
+            # overwrite = self.storage[key_index].find(key)
+            # if overwrite is not None:  # the key already exists in the linked list
+            #     cur = self.capacity[key_index].head
 
     def delete(self, key):
         """
@@ -165,9 +132,9 @@ class HashTable:
         # Your code here
         key_index = self.hash_index(key)
 
-        if self.capacity[key_index] is not None:
+        if self.storage[key_index] is not None:
             self.size -= 1
-            deleted_node = self.capacity[key_index].delete(key)
+            deleted_node = self.storage[key_index].delete(key)
             return deleted_node
         else:
             return None
@@ -175,7 +142,7 @@ class HashTable:
         load = self.get_load_factor()
 
         if load < 0.2:
-            self.resize(len(self.capacity) / 2)
+            self.resize(self.capacity / 2)
 
 
 
@@ -205,12 +172,12 @@ class HashTable:
 
         Implement this.
         """
-        self.capacity = [None] * new_capacity
+        original_table = self.storage
+        self.capacity = new_capacity
+        self.storage = [None] * new_capacity
         self.size = 0
-        old_table = self.capacity
 
-
-        for x in old_table:
+        for x in original_table:
             if x is not None:
                 cur = x.head
 
