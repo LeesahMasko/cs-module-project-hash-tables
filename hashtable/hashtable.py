@@ -126,17 +126,20 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        key_index = self.hash_index(key)
+        self.size += 1
+
         newNode = HashTableEntry(key, value)
         index = self.hash_index(key)
-        if self.data[index].head is None:
-            self.data[index].head = newNode
-            self.size += 1
-            return
+        if self.capacity[key_index] is not None:
+            overwrite = self.capacity[key_index].find(key)
+            if overwrite is not None:  # the key already exists in the linked list
+                cur = self.capacity[key_index].head
 
         else:
             curr = self.data[index].head
 
-            while curr.next:
+            while cur is not None:
                 if curr.key == key:
                     curr.value = value
                 curr = curr.next
