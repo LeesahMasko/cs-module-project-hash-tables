@@ -9,8 +9,9 @@ class HashTableEntry:
 
 
 class LinkedList:
-    def __init__(self):
+    def __init__(self, key):
         self.head = None
+        self.key = None
 
     def find(self, key):
         cur = self.head
@@ -128,6 +129,7 @@ class HashTable:
         # Your code here
         key_index = self.hash_index(key)
         self.size += 1
+        cur = self.capacity[key_index]
 
         if self.capacity[key_index] is not None:
             overwrite = self.capacity[key_index].find(key)
@@ -135,18 +137,18 @@ class HashTable:
                 cur = self.capacity[key_index].head
 
             while cur is not None:
-                if curr.key == key:
-                    curr.value = value
-                curr = curr.next
+                if cur.key == key:
+                    cur.value = value
+                cur = cur.next
             else:
                 self.capacity[key_index].insert_at_head(key, value)
 
-            curr.next = newNode
+            cur.next = newNode
             self.size += 1
 
         else:  # no linked list there
 
-            ll = LinkedList()
+            ll = LinkedList(key)
             ll.insert_at_head(key, value)
             self.capacity[key_index] = ll
 
