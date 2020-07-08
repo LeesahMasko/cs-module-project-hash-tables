@@ -57,9 +57,10 @@ class HashTable:
     """
 
     def __init__(self, capacity):
-        self.capacity = capacity
-        self.data = [LinkedList()] * capacity
+        self.capacity = [None] * capacity
+        # self.data = [LinkedList()] * capacity
         self.size = 0
+        self.head = None
 
 
     def get_num_slots(self):
@@ -73,7 +74,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        return len(self.data)
+        return len(self.capacity)
 
     def get_load_factor(self):
         """
@@ -82,7 +83,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        return self.size/len(self.capacity)
+        return (self.size / self.capacity)
 
 
     def fnv1(self, key):
@@ -114,7 +115,7 @@ class HashTable:
         between within the storage capacity of the hash table.
         """
         #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.djb2(key) % len(self.capacity)
 
     def put(self, key, value):
         """
