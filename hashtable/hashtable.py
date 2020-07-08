@@ -129,23 +129,26 @@ class HashTable:
         key_index = self.hash_index(key)
         self.size += 1
 
-        newNode = HashTableEntry(key, value)
-        index = self.hash_index(key)
         if self.capacity[key_index] is not None:
             overwrite = self.capacity[key_index].find(key)
             if overwrite is not None:  # the key already exists in the linked list
                 cur = self.capacity[key_index].head
 
-        else:
-            curr = self.data[index].head
-
             while cur is not None:
                 if curr.key == key:
                     curr.value = value
                 curr = curr.next
+            else:
+                self.capacity[key_index].insert_at_head(key, value)
 
             curr.next = newNode
             self.size += 1
+
+        else:  # no linked list there
+
+            ll = LinkedList()
+            ll.insert_at_head(key, value)
+            self.capacity[key_index] = ll
 
 
 
@@ -158,11 +161,20 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        index = self.hash_index(key)
-        if self.data[index] is None:
-            print('key not found')
+        key_index = self.hash_index(key)
+
+        if self.capacity[key_index] is not None:
+            self.size -= 1
+            deleted_node = self.capacity[key_index].delete(key)
+            return deleted_node
         else:
-            self.data[index] = None
+            return None
+
+        load = self.get_load_factor()
+
+        if load < 0.2:
+            self.resize(len(self.capacity) / 2)
+
 
 
     def get(self, key):
@@ -174,20 +186,14 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        index = self.hash_index(key)
-        curr = self.data[index].head
+        key_index = self.hash_index(key)
 
-        if curr == None:
+        if self.capacity[key_index] is not None:
+            return self.capacity[key_index].find(key)
+
+        else:
             return None
 
-        if curr.key == None:
-            return curr.value
-
-        while curr.next:
-            curr = curr.next
-            if curr.key == key:
-                return curr.value
-        return None
 
 
     def resize(self, new_capacity):
