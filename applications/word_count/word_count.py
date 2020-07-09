@@ -1,5 +1,29 @@
 def word_count(s):
     # Your code here
+    cache = {}
+    string = s.lower()
+    if "" == string:
+        return cache
+    ignor_char = "\":;,.-+=/\\|[]{}()*^&"
+    char_whitespace = "\t\r\n"
+
+    for char in ignor_char:
+        string = string.replace(char,"")
+    for char in char_whitespace:
+        string = string.replace(char," ")
+
+    list_ofwords = string.split(" ")
+
+    for word in list_ofwords:
+        if word != "":
+            if word in cache:
+                cache[word] += 1
+            else:
+                cache[word] = 1
+    print(cache)
+    return cache
+
+
 
 
 
