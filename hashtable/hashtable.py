@@ -36,7 +36,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        return len(self.capacity)
+        return (self.capacity)
 
     def get_load_factor(self):
         """
@@ -104,17 +104,16 @@ class HashTable:
                 last_entry = cur
                 cur = cur.next
 
+            if last_entry:
                 last_entry.next = new_entry
                 self.size += 1
-
-                if self.get_load_factor() > 0.7:
-                    self.resize(self.size * 2)
-
         else:
-            cur = new_entry
+            # cur = new_entry
+            self.storage[key_index] = new_entry
             self.size += 1
-            if self.get_load_factor() > 0.7:
-                self.resize(self.size * 2)
+
+        if self.get_load_factor() > 0.7:
+            self.resize(self.size * 2)
 
 
             # overwrite = self.storage[key_index].find(key)
@@ -131,18 +130,38 @@ class HashTable:
         """
         # Your code here
         key_index = self.hash_index(key)
+        cur = self.storage[key_index]
+        prev_entry = None
+        deleted_node = None
 
-        if self.storage[key_index] is not None:
-            self.size -= 1
-            deleted_node = self.storage[key_index].delete(key)
-            return deleted_node
-        else:
-            return None
+        # 5
+        # [None, None, None, None, None]
+        #        <Lisa, PhoneNumber>
+        # [None, HashTableEntry, None, None, None]
+
+        current_entry = self.storage[key_index]
+
+        # Iterate through linked list.
+        # If the current node's key is equal to the key, set the previous node's next equal to the current node's next
+        # deleted_node = current_entry.delete(key)
+
+        while current_entry is not None:
+            if current_entry.key == key:
+                if prev_entry:
+                    prev_entry.next = current_entry.next
+                else:
+                    self.storage[key_index] = None
+                self.size -= 1
+                deleted_node = current_entry
+                break
+            current_entry = current_entry.next
+            prev_entry = current_entry
 
         load = self.get_load_factor()
-
         if load < 0.2:
             self.resize(self.capacity / 2)
+
+        return deleted_node
 
 
 
@@ -156,9 +175,14 @@ class HashTable:
         """
         # Your code here
         key_index = self.hash_index(key)
+        cur = self.storage[key_index]
 
-        if self.capacity[key_index] is not None:
-            return self.capacity[key_index].find(key)
+
+        if cur is not None:
+            while cur is not None:
+                if(cur.key == key):
+                    return cur.value
+                cur = cur.next
 
         else:
             return None
@@ -172,18 +196,15 @@ class HashTable:
 
         Implement this.
         """
-        original_table = self.storage
-        self.capacity = new_capacity
+        prev_storage = self.storage
         self.storage = [None] * new_capacity
-        self.size = 0
+        self.capacity = new_capacity
 
-        for x in original_table:
-            if x is not None:
-                cur = x.head
-
-                while cur is not None:
-                    self.put(cur.key, cur.value)
-                    cur = cur.next
+        for idx in range(len(prev_storage)):
+            cur = prev_storage[idx]
+            while cur is not None:
+                self.put(cur.key, cur.value)
+                cur = cur.next
 
 
 if __name__ == "__main__":
